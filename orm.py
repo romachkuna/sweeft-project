@@ -61,15 +61,50 @@ class Database:
         self.cursor.execute(query)
         self.connection.commit()
 
-    def connect_to_table(self, table, limit=None):
+    def delete_row(self, table, row_id):
         """
+        since all the tables in the db have id field no need for seperate functions for each table
+        :param table:
+        :param row_id:
+        :return:
+        """
+        query = f"DELETE FROM {table} WHERE id = %s;"
+        self.cursor.execute(query, (row_id,))
+        self.connection.commit()
+
+    def update_row(self, table, row_id, new_data):
+        """
+        :param table:
+        :param row_id:
+        :param new_data: dictionary containing column names and new values
+        """
+        set_values = ', '.join([f"{key} = %s" for key in new_data.keys()])
+        query = f"UPDATE {table} SET {set_values} WHERE id = %s;"
+        values = list(new_data.values())
+        values.append(row_id)
+        self.cursor.execute(query, tuple(values))
+        self.connection.commit()
+
+
+    def retrieve_table_data(self, table, limit=None, order_by=None, LIKE=None, ILIKE=None):
+        """
+        :param LIKE:
+        :param ILIKE:
+        :param order_by:
         :param limit:
         :param table:
         :return: dictionary of the table rows
         """
-        query = f"SELECT * FROM {table};"
+        query = f"SELECT * FROM {table}"
+        if LIKE:
+            query += f" WHERE {LIKE[0]} LIKE '{LIKE[1]}'"
+        elif ILIKE:
+            query += f" WHERE {LIKE[0]} ILIKE '{ILIKE[1]}'"
+        if order_by:
+            query += f" ORDER BY {order_by}"
         if limit:
             query += f" LIMIT {limit}"
+        query += ";"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         return result
@@ -121,6 +156,15 @@ class Database:
             for contract_id in ag_ids:
                 self.insert_into_collection_contracts(collection_id, contract_id)
 
+    def add_column_to_table(self, table, column, column_type):
+        query = f"ALTER TABLE {table} ADD COLUMN {column} {column_type};"
+        self.cursor.execute(query)
+        self.connection.commit()
 
-def close_db_connection(self):
-    self.connection.close()
+    def change_column_type(self, table, column_name, new_type):
+        query = f"ALTER TABLE {table} MODIFY COLUMN {column_name} {new_type};"
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def close_db_connection(self):
+        self.connection.close()
