@@ -40,8 +40,27 @@ def save_df_to_json(df):
 
 def drop_unnecessary_columns(df, columns):
     # ["collection","name","twitter_username","contracts","description","owner","image_url"]
-    df.filter(columns, axis=1)
+    return df[columns]
 
 
 def replace_all_whitespace(df):
     df.replace('', 'NOT FOUND', inplace=True)
+
+
+def prepare_data_for_orm(df):
+    return df.to_dict(orient='records')
+
+
+# aggregation functions
+def items_for_each_owner(df):
+    return df.groupby('owner').size()
+
+
+def average_length_of_description(df):
+    df['description_length'] = df['description'].str.len()
+    return df['description_length'].mean()
+
+
+def filter_items_based_on_owner(df, owner):
+    items = df[df['owner'] == owner]
+    return items

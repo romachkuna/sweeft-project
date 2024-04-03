@@ -23,7 +23,7 @@ class Database:
         collection VARCHAR(255),
         name VARCHAR(255),
         description TEXT,
-        image_url VARCHAR(255),
+        image_url TEXT,
         owner VARCHAR(255),
         twitter_username VARCHAR(255)
         );
@@ -84,7 +84,6 @@ class Database:
         values.append(row_id)
         self.cursor.execute(query, tuple(values))
         self.connection.commit()
-
 
     def retrieve_table_data(self, table, limit=None, order_by=None, LIKE=None, ILIKE=None):
         """
@@ -158,6 +157,11 @@ class Database:
 
     def add_column_to_table(self, table, column, column_type):
         query = f"ALTER TABLE {table} ADD COLUMN {column} {column_type};"
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def remove_column_from_table(self, table, column):
+        query = f"ALTER TABLE {table} DROP COLUMN {column};"
         self.cursor.execute(query)
         self.connection.commit()
 
