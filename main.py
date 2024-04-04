@@ -50,4 +50,4 @@ query_result = db.retrieve_table_data("collections", LIKE=("name", '%dummy%'), o
 print(query_result)
 
 # all the other functions that are in the requirements are implement , tho i am not running them here due to they
-# modify the database, so it doesn't interfare with the database
+# modify the database.
